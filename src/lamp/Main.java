@@ -2,6 +2,7 @@ package lamp;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,11 +17,15 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 
+
+import lamp.Color;
+
 public class Main {
 
 	public static void main(String[] args) throws IOException {
 		String fileName = getFileName();
 		BufferedImage image = getImage(fileName);
+		image = monochromize(image);
 		int[][] table = imageToTableSlow(image);
 		int[][] raster = createRaster(table.length, table[0].length);
 		prepareImage(table);
@@ -28,6 +33,14 @@ public class Main {
 		pasteInRaster(table, raster);
 		cleanRaster(raster);
 		createImage(raster);
+	}
+	
+	private static BufferedImage monochromize(BufferedImage image){
+            BufferedImage blackWhite = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+            Graphics2D g2d = blackWhite.createGraphics();
+            g2d.drawImage(image, 0, 0, null);
+            g2d.dispose();
+            return blackWhite;
 	}
 	
 	private static void prepareImage(int[][] image){
@@ -77,7 +90,7 @@ public class Main {
 		    		   withNearby = true;
 		    	   }
 		    	   if(withNearby){
-		    		   image[i][j] = 16711680;
+		    		   image[i][j] = Color.red;
 		    	   }
 		       }		       
 		    }
@@ -113,7 +126,7 @@ public class Main {
 		for(int i = 0; i < width; i++){
 			for(int j = 0; j < height; j++){
 				if(image[i][j] != -1){
-					raster[i][j] = 16777215;
+					raster[i][j] = Color.red;
 				}
 			}
 		}
@@ -124,8 +137,8 @@ public class Main {
 		int height = image[0].length;
 		for(int i = 0; i < width; i++){
 			for(int j = 0; j < height-1; j++){
-				if(image[i][j] ==  16711680){
-					raster[i][j] = 16711680;
+				if(image[i][j] ==  Color.red){
+					raster[i][j] = Color.red;
 				}
 			}
 		}
@@ -142,7 +155,7 @@ public class Main {
 			while(i < grens && i < height){
 				System.out.println(i);
 				for(int j = 0; j < width; j++){
-					raster[j][i] = 16777215;
+					raster[j][i] = Color.red;
 				}
 				i++;
 			}
@@ -151,20 +164,23 @@ public class Main {
 		}
 	}
 	
+	/**
+	* Creates 1 pixel red border around the image.
+	*/
 	private static int[][] maakKader(int[][] raster){
 		int width = raster.length;
 		int height = raster[0].length;
 		for(int i = 0; i < width; i++){
-			raster[i][0] = 16711680;
+			raster[i][0] = Color.red;
 		}
 		for(int i = 0; i < width; i++){
-			raster[i][height-1] = 16711680;
+			raster[i][height-1] = Color.red;
 		}
 		for(int j = 0; j < height; j++){
-			raster[0][j] = 16711680;
+			raster[0][j] = Color.red;
 		}
 		for(int j = 0; j < height; j++){
-			raster[width-1][j] = 16711680;
+			raster[width-1][j] = Color.red;
 		}
 		return raster;
 	}
@@ -173,7 +189,7 @@ public class Main {
 		int[][] table = new int[width][height];
 		for(int i = 0; i < width; i++){
 			for(int j = 0; j < height; j++){
-				table[i][j] = 16777215;
+				table[i][j] = Color.white;
 			}
 		}
 		int rowFatness = 1;
@@ -184,7 +200,7 @@ public class Main {
 		int rowfatcounter = 1;
 		while(i < height && (!toprow || width-i > rowFatness+space+dikte)){
 			for(int j=0; j < width; j++){
-				table[j][i] = 16711680;
+				table[j][i] = Color.red;
 			}
 			//System.out.println(i);
 			if(rowfatcounter < rowFatness){
@@ -212,7 +228,7 @@ public class Main {
 		int rowfatcounter = 0;
 		while(i < width){
 			for(int j=0; j < height; j++){
-				table[j][i] = 16711680;
+				table[j][i] = Color.red;
 			}
 			if(rowfatcounter < rowFatness){
 				i++;
